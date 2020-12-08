@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -12,81 +13,52 @@ func check(e error) {
 	}
 }
 
-type Position struct {
-	x int
-	y int
+type TreeMap struct {
+	lines []string
 }
 
-func getNextPos(previous Position, row string, xDir int, yDir int) Position {
-	var newX int
-	if previous.x+xDir < len(row) {
-		newX = previous.x + xDir
-	} else {
-		newX = xDir - (len(row) - previous.x)
+func NewTreeMap(reader io.Reader) (TreeMap, error) {
+	scanner := bufio.NewScanner(reader)
+	lines := make([]string, 0)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
 	}
-	return Position{
-		x: newX,
-		y: previous.y + yDir,
-	}
+	return TreeMap{lines: lines}, nil
 }
 
-func calculateTrees(rows []string, xDir int, yDir int) int {
-	var sumTrees int = 0
-	var position = Position{
-		x: 0,
-		y: 0,
-	}
-	for i := range rows[0 : len(rows)-yDir] {
-		position = getNextPos(position, rows[i], xDir, yDir)
-		fmt.Println("x", position.x)
-		fmt.Println("y", position.y)
-
-		if position.y < len(rows) {
-			row := rows[position.y]
-			c := row[position.x]
-
-			if c == '#' {
-				sumTrees++
-			}
-
+func (t TreeMap) CountTrees(column, row, right, down int) int {
+	trees := 0
+	for row < len(t.lines) {
+		if t.lines[row][column] == '#' {
+			trees++
 		}
+
+		column = (column + right) % len(t.lines[row])
+		row = row + down
 	}
-	return sumTrees
+	return trees
 }
 
 func partOne() {
 	file, err := os.Open("input.txt")
 	defer file.Close()
 	check(err)
-	scanner := bufio.NewScanner(file)
-	var text []string
-	var sumTrees int = 0
-	for scanner.Scan() {
-		text = append(text, scanner.Text())
-	}
-
-	sumTrees = calculateTrees(text, 3, 1)
-	fmt.Println("SumTrees", sumTrees)
+	treeMap, error := NewTreeMap(file)
+	check(error)
+	fmt.Println("SumTrees", treeMap.CountTrees(0, 0, 3, 1))
 }
 
 func partTwo() {
 	file, err := os.Open("input.txt")
 	defer file.Close()
 	check(err)
-	scanner := bufio.NewScanner(file)
-	var text []string
-
-	for scanner.Scan() {
-		text = append(text, scanner.Text())
-	}
-	var sumTrees int = 0
-	sumTrees = calculateTrees(text, 1, 1) * calculateTrees(text, 3, 1) * calculateTrees(text, 5, 1) * calculateTrees(text, 7, 1) * calculateTrees(text, 1, 2)
-	// sumTrees = calculateTrees(text, 1, 2)
-	fmt.Println("SumTrees", sumTrees)
+	treeMap, error := NewTreeMap(file)
+	check(error)
+	fmt.Println("SumTrees", treeMap.CountTrees(0, 0, 3, 1)*treeMap.CountTrees(0, 0, 5, 1)*treeMap.CountTrees(0, 0, 7, 1)*treeMap.CountTrees(0, 0, 1, 2))
 
 }
 
 func main() {
-	// partOne()
+	partOne()
 	partTwo()
 }
