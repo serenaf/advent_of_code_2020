@@ -194,7 +194,7 @@ func partTwo() int {
 }
 
 func main() {
-	// fmt.Println("Valid Passports", partOne())
+	fmt.Println("Valid Passports", partOne())
 	fmt.Println("Strictly  Valid Passports", partTwo())
 
 }

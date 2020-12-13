@@ -1,0 +1,6 @@
+each line represents an instruction
+each instruction has an occurence or sequence array, if it is more than 1 the instruction is executed again
+valid instructions are
+nop
+acc
+jmp
